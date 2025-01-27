@@ -1,0 +1,65 @@
+NUM_GPUS: 4
+PIPELINE: ['train']
+TASK: speed
+TRAIN:
+    LOG_FREQ: 1
+    SAVE_FREQ: 10
+    AMP: false
+    SEED: 0
+    AUTO_RESUME: true
+SSL:
+    MARGIN: 5.0
+    RANGE: [1, 2, 4, 8]
+    JITTER: 0.2
+    METHOD: random
+    HEAD_L2_NORM: false
+    NUM_MLP_LAYERS: 2
+    MLP_DIM: 4096           # 2x 3d-resnet-50 out_dim: 2048
+    BN_MLP: true
+    BN_SYNC_MLP: true
+    STAT: ['loss_spd', 'acc_spd']
+    METRIC: ['bce_logit', 'acc@1']
+    SMOOTHING: 0.05
+MODEL:
+    MODEL_NAME: ResNet
+    ARCH: slow
+    NUM_CLASSES: 4          # len(SSL.RANGE)
+    DROPOUT_RATE: 0.2
+    HEAD_ACT: none          # only affect eval mode, suggest to be 'none'
+RESNET:
+    DEPTH: 50
+    NUM_BLOCK_TEMP_KERNEL: [[3], [4], [6], [3]]   # for r3d-50
+BN:
+    NUM_SYNC_DEVICES: 4
+    NORM_TYPE: sync_batchnorm
+    WEIGHT_DECAY: 0.0
+DATA:
+    DATASET: kinetics       # kinetics / ucf-101
+    DATADIR: /home/wjw/Datasets/ucf101/UCF-101
+    LABELDIR: /home/wjw/Workspace/projects/data_list/ucf101
+    SPLITFILE: train.csv
+    NUM_CLIP: 4
+    NUM_FRAMES: 8
+    STRIDE: 1
+    BATCHSIZE_PER_GPU: 8    # total bs=NUM_GPUS*BATCHSIZE_PER_GPU
+    WORKERS: 8
+    INPUT_CHANNEL_NUM: [3]
+AUG:
+    TYPE: simple
+    COLOR: [0.8, 0.2, 0.2, 0.2, 0.1]
+    GRAYSCALE: 0.2
+    RESIZE: [320, 256]
+    TARGET_SIZE: 224
+    MIN_AREA: 0.20
+    MAX_AREA: 0.76
+SOLVER:
+    LARS_ON: false
+    MAX_EPOCH: 200
+    OPTIMIZING_METHOD: simple_sgd
+    BASE_LR: 4e-2
+    WEIGHT_DECAY: 5e-4
+    MOMENTUM: 0.9
+    LR_POLICY: cosine
+    WARMUP_EPOCHS: 10.0
+    WARMUP_START_LR: 0.001
+    COSINE_AFTER_WARMUP: true

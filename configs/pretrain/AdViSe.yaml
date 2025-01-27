@@ -1,0 +1,79 @@
+NUM_GPUS: 4
+PIPELINE: ['train']
+TASK: tmodeling
+TRAIN:
+    LOG_FREQ: 1
+    SAVE_FREQ: 20
+    AMP: false
+    SEED: 0
+    AUTO_RESUME: false
+SSL:
+    TASK: speed
+    RANGE: [1, 2, 4, 8]
+    JITTER: 0.2
+    MLP_DIM: 1024
+    METHOD: random
+    HEAD_L2_NORM: false
+    NUM_MLP_LAYERS: 2
+    STAT: ['loss_spd', 'acc_spd']
+    METRIC: ['ce', 'acc@1']
+    SMOOTHING: 0.05
+CONTRASTIVE:
+    DIM: 256
+    HIDDEN_DIM: 4096
+    MOMENTUM: 0.993
+    T: 1.0
+MODEL:
+    MODEL_NAME: TemporalModel
+    SPATIAL_MODEL_ARCH:
+    SPATIAL_MODEL_PATH:
+    SPATIAL_EMBEDDING_DIM: 768
+    TEMPORAL_NUM_LAYERS:
+    TEMPORAL_NUM_HEADS:
+    TEMPORAL_HIDDEN_DIM: 256
+    TEMPORAL_EMBEDDING_DIM: 512
+    TEMPORAL_NUM_EMBEDDINGS:            # with cls tokens
+    NUM_CLASSES: 4                      # same as contrastive.dim
+    DROPOUT_RATE: 0.0
+TM:
+    ENABLE_BF16: true
+    SPATIAL_POOL_DIM:
+    CHANNEL_POOL_DIM:
+    TEMPORAL_ARCH: resnet3d
+    NUM_BLOCKS: 4
+    NUM_HEADS: 6
+    FROM_SCRATCH: false
+BN:
+    NUM_SYNC_DEVICES: 4
+    NORM_TYPE: sync_batchnorm
+    WEIGHT_DECAY: 0.0
+DATA:
+    DATASET: kinetics
+    DATADIR: /home/wjw/Datasets/ucf101/UCF-101
+    LABELDIR: /home/wjw/Workspace/projects/data_list/ucf101
+    SPLITFILE: train.csv
+    NUM_CLIP: 4
+    NUM_FRAMES: 8
+    STRIDE: 2
+    BATCHSIZE_PER_GPU: 8    # total bs=NUM_GPUS*BATCHSIZE_PER_GPU
+    WORKERS: 8
+    INPUT_CHANNEL_NUM: [3]
+AUG:
+    TYPE: simple
+    COLOR: [0.8, 0.2, 0.2, 0.2, 0.1]
+    GRAYSCALE: 0.2
+    RESIZE: [320, 256]
+    TARGET_SIZE: 224
+    MIN_AREA: 0.76
+    MAX_AREA: 1.00
+SOLVER:
+    LARS_ON: false
+    MAX_EPOCH: 800
+    OPTIMIZING_METHOD: simple_adamw
+    BASE_LR: 1e-3
+    WEIGHT_DECAY: 1e-6
+    MOMENTUM: 0.9
+    LR_POLICY: cosine
+    WARMUP_EPOCHS: 5.0
+    WARMUP_START_LR: 0.0
+    COSINE_AFTER_WARMUP: true
